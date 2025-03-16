@@ -64,6 +64,10 @@ void AGameField::BeginPlay()
 	}
 	
 	GenerateField();
+
+	// Choose percentage of obstacles
+	int32 NumObstacles = (FieldSize * FieldSize) * 0.1;
+	GenerateObstacles(NumObstacles);
 	
 }
 
@@ -110,3 +114,24 @@ FVector AGameField::GetRelativeTilePosition(int32 X, int32 Y)
 	return FVector(TileSize * NextTileMultiplier * X, TileSize * NextTileMultiplier * Y, 0);
 }
 
+void AGameField::GenerateObstacles(int32 NumObstacles)
+{
+	if (Tiles.Num() == 0)
+	{
+		// Debug
+		UE_LOG(LogTemp, Warning, TEXT("No tiles found"));
+		return;
+	}
+
+	TArray<ATile*> AvailableTiles = Tiles;
+	for (int32 i = 0; i < NumObstacles; i++)
+	{
+		// Get random tile
+		int32 RandomIndex = FMath::RandRange(0, AvailableTiles.Num() - 1);
+		ATile* RandomTile = AvailableTiles[RandomIndex];
+		// Set tile as obstacle
+		RandomTile->SetAsObstacle(ObstacleMaterial);
+		// Remove tile from available tiles
+		AvailableTiles.RemoveAt(RandomIndex);
+	}
+}

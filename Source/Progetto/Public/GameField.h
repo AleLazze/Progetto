@@ -35,6 +35,9 @@ public:
 	// Get relative position of tile given x and y
 	FVector GetRelativeTilePosition(int32 X, int32 Y);
 
+	// Generate obstacles
+	void GenerateObstacles(int32 NumObstacles);
+
 
 	// Size of field
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -63,5 +66,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* GameCamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tiles")
+	UMaterialInterface* ObstacleMaterial;
+
 
 };

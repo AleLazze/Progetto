@@ -26,6 +26,9 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Set obstacle
+	void SetAsObstacle(UMaterialInterface* ObstacleMaterial);
+
 
 	// Scene component
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
@@ -42,5 +45,9 @@ public:
 	// Position of the tile in the grid
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector2D GridPosition;
+
+	// Check if tile is obstacle
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	bool bIsObstacle;
 
 };

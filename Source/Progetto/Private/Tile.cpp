@@ -47,3 +47,14 @@ void ATile::BeginPlay()
 	Super::BeginPlay();
 	
 }
+
+
+void ATile::SetAsObstacle(UMaterialInterface* ObstacleMaterial)
+{
+	bIsObstacle = true;
+	if (ObstacleMaterial)
+	{
+		StaticMeshComponent->SetMaterial(0, ObstacleMaterial);
+	}
+	
+}
