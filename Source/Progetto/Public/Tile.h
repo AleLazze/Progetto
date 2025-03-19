@@ -15,9 +15,9 @@ public:
 	// Sets default values for this actor's properties
 	ATile();
 
-	void SetTilePlayer(int32 Player);
+	void SetTileOwner(int32 Player);
 
-	int32 GetTilePlayer();
+	int32 GetTileOwner();
 
 	void SetGridPosition(FVector2D Position);
 
@@ -40,7 +40,7 @@ public:
 
 	// Player that owns the tile
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 TilePlayer;
+	int32 TileOwner;
 
 	// Position of the tile in the grid
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

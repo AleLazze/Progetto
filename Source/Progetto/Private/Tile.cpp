@@ -17,16 +17,20 @@ ATile::ATile()
 
 	GridPosition = FVector2D(0, 0);
 
+	TileOwner = -1;
+
+	bIsObstacle = false;
+
 }
 
-void ATile::SetTilePlayer(int32 Player)
+void ATile::SetTileOwner(int32 Player)
 {
-	TilePlayer = Player;
+	TileOwner = Player;
 }
 
-int32 ATile::GetTilePlayer()
+int32 ATile::GetTileOwner()
 {
-	return TilePlayer;
+	return TileOwner;
 }
 
 void ATile::SetGridPosition(FVector2D Position)
@@ -56,5 +60,4 @@ void ATile::SetAsObstacle(UMaterialInterface* ObstacleMaterial)
 	{
 		StaticMeshComponent->SetMaterial(0, ObstacleMaterial);
 	}
-	
 }

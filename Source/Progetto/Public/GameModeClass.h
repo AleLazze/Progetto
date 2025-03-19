@@ -3,9 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
 #include "GameField.h"
 #include "PlayerInterface.h"
+#include "GameUnit.h"
+#include "GameFramework/GameModeBase.h"
 #include "GameModeClass.generated.h"
 
 /**
@@ -21,6 +22,10 @@ public:
 	bool isGameOver;
 	//Array of player interfaces
 	TArray<class IPlayerInterface*> Players;
+	// First player
+	int32 FirstPlayer;
+	// Second player
+	int32 SecondPlayer;
 	// Current player
 	int32 CurrentPlayer;
 	// Turn counter
@@ -43,7 +48,7 @@ public:
 	virtual void BeginPlay() override;
 
 	// Called at the start of the game
-	void PickPlayerStartGame();
+	void PickPlayerPlaceUnits();
 
 	// Get next player
 	int32 GetNextPlayer(int32 Player);

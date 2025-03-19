@@ -2,6 +2,11 @@
 
 
 #include "GameModeClass.h"
+#include "HumanPlayer.h"
+#include "AIPlayer.h"
+#include "Brawler.h"
+#include "Sniper.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AGameModeClass::AGameModeClass()
@@ -17,36 +22,82 @@ void AGameModeClass::BeginPlay()
 
 	TurnCounter = 0;
 
-	// Aggiungo i player quando avrò creato le classi
+	/* AHumanPlayer* HumanPlayer = GetWorld()->GetFirstPlayerController()->GetPawn<AHumanPlayer>();
 
-	// Faccio in modo che HumanPlayer = 0
-	// Players.Add(HumanPlayer);
-	// 
-	// 
-	// Aggiungo random player
-	// Players.Add(IA);
+	if (!IsValid(HumanPlayer))
+	{
+		UE_LOG(LogTemp, Error, TEXT("No HumanPlayer found!"));
+		return;
+	}
+	*/
 
-	this->PickPlayerStartGame();
+	// Creates game field
+	if (GameFieldClass != nullptr)
+	{
+		FVector Origin = FVector(0, 0, 0);
+		GameField = GetWorld()->SpawnActor<AGameField>(GameFieldClass, Origin, FRotator::ZeroRotator);
+		GameField->FieldSize = FieldSize;
+	}
+	else
+	{
+		// Debug
+		UE_LOG(LogTemp, Error, TEXT("No GameFieldClass found!"));
+	}
+
+	// Debug
+	if (!GameField)
+	{
+		UE_LOG(LogTemp, Error, TEXT("No GameField found in the scene!"));
+		return;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("GameField found successfully!"));
+	}
+
+	// Add HumanPlayer to the list of players
+	Players.Add(HumanPlayer);
+
+	
+	// Add AI players
+	// auto* AIPlayer = GetWorld()->SpawnActor<AAIPlayer>(FVector(), FRotator());
+
+	// Players.Add(AIPlayer);
+
+
+
+	this->PickPlayerPlaceUnits();
 }
 
-void AGameModeClass::PickPlayerStartGame()
+void AGameModeClass::PickPlayerPlaceUnits()
 {
-	// Pick a random player to start the game
-	CurrentPlayer = FMath::RandRange(0, Players.Num() - 1);
+	if (!GameField)
+	{
+		// Debug
+		UE_LOG(LogTemp, Warning, TEXT("No game field found"));
+		return;
+	}
 
-	// Start the game
-	TurnCounter += 1;
-	Players[CurrentPlayer]->OnTurn();
+	// Pick random player
+	FirstPlayer = FMath::RandRange(0, Players.Num() - 1);
+	SecondPlayer = GetNextPlayer(FirstPlayer);
+
+	// Place units
+	GameField->PlaceUnitOnTile(ABrawler::StaticClass(), FVector2D(0, 0), FirstPlayer);
+	UE_LOG(LogTemp, Warning, TEXT("Placed Brawler on tile 0,0"));
+	GameField->PlaceUnitOnTile(ABrawler::StaticClass(), FVector2D(24, 24), SecondPlayer);
+	UE_LOG(LogTemp, Warning, TEXT("Placed Brawler on tile 24,24"));
+	GameField->PlaceUnitOnTile(ASniper::StaticClass(), FVector2D(0, 24), FirstPlayer);
+	UE_LOG(LogTemp, Warning, TEXT("Placed Sniper on tile 0,24"));
+	GameField->PlaceUnitOnTile(ASniper::StaticClass(), FVector2D(24, 0), SecondPlayer);
+	UE_LOG(LogTemp, Warning, TEXT("Placed Sniper on tile 24,0"));
+
 }
 
 int32 AGameModeClass::GetNextPlayer(int32 Player)
 {
 	// Get the next player
-	Player++;
-	if (Player >= Players.Num())
-	{
-		Player = 0;
-	}
+	Player = 1 - Player;
 	return Player;
 }
 

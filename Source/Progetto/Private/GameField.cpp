@@ -18,6 +18,9 @@ AGameField::AGameField()
 	// Tile padding
 	TilePadding = 0.01f;
 
+	// Obstacle percentage
+	ObstaclePercentage = 0.1;
+
 	// Create camera component
 	GameCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("GameCamera"));
 	GameCamera->SetupAttachment(RootComponent);
@@ -65,8 +68,8 @@ void AGameField::BeginPlay()
 	
 	GenerateField();
 
-	// Choose percentage of obstacles
-	int32 NumObstacles = (FieldSize * FieldSize) * 0.1;
+	// Number of obstacles
+	int32 NumObstacles = (FieldSize * FieldSize) * ObstaclePercentage;
 	GenerateObstacles(NumObstacles);
 	
 }
@@ -88,7 +91,7 @@ void AGameField::GenerateField()
 
 			// Set grid position
 			const float TileScale = TileSize / 100.f;
-			const float ZScale = 0.1f;
+			const float ZScale = 0.1;
 			Tile->SetActorScale3D(FVector(TileScale, TileScale, ZScale));
 			Tile->SetGridPosition(FVector2D(i, j));
 			// Add tile to array
@@ -134,4 +137,37 @@ void AGameField::GenerateObstacles(int32 NumObstacles)
 		// Remove tile from available tiles
 		AvailableTiles.RemoveAt(RandomIndex);
 	}
+}
+
+void AGameField::PlaceUnitOnTile(TSubclassOf<AGameUnit> UnitClass, FVector2D Position, int32 Player)
+{
+	if (TileMap.Contains(Position) == false)
+	{
+		// Debug
+		UE_LOG(LogTemp, Warning, TEXT("Tile not found"));
+		return;
+	}
+
+
+	ATile* TargetTile = TileMap[Position];
+
+	// Check if tile is occupied
+	if (TargetTile->GetTileOwner() != -1)
+	{
+		// Debug
+		UE_LOG(LogTemp, Warning, TEXT("Tile is occupied"));
+		return;
+	}
+
+	// Set spawn location
+	FVector SpawnLocation = TargetTile->GetActorLocation();
+	SpawnLocation.Z = 100.f;
+
+	AGameUnit* SpawnedUnit = GetWorld()->SpawnActor<AGameUnit>(UnitClass, SpawnLocation, FRotator::ZeroRotator);
+
+	if (SpawnedUnit)
+	{
+		SpawnedUnit->SetUnitOwner(Player);
+		TargetTile->SetTileOwner(Player);
+	}	
 }

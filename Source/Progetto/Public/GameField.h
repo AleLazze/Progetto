@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Camera/CameraComponent.h"
 #include "Tile.h"
+#include "GameUnit.h"
 #include "GameField.generated.h"
 
 UCLASS()
@@ -38,6 +39,9 @@ public:
 	// Generate obstacles
 	void GenerateObstacles(int32 NumObstacles);
 
+	// Place unit on tile
+	void PlaceUnitOnTile(TSubclassOf<AGameUnit> UnitClass, FVector2D Position, int32 Player);
+
 
 	// Size of field
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -67,8 +71,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	UCameraComponent* GameCamera;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Tiles")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obstacles")
 	UMaterialInterface* ObstacleMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obstacles")
+	float ObstaclePercentage;
 
 
 };
