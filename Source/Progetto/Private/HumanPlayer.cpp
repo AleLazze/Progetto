@@ -2,15 +2,30 @@
 
 
 #include "HumanPlayer.h"
+#include "Tile.h"
 #include "GameField.h"
 #include "GameModeClass.h"
 #include "Components/InputComponent.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 
 // Sets default values
 AHumanPlayer::AHumanPlayer()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Set this pawn to be controlled by the lowest-numbered player
+	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+	// Create camera component
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(RootComponent);
+
+	// Get game instance
+	GameInstance = Cast<UGameInstanceClass>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	PlayerNumber = 1;
 
 }
 
@@ -47,25 +62,30 @@ void AHumanPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AHumanPlayer::OnClick()
 {
+	if (!bIsMyTurn)
+	{
+		return;
+	}
+
 	// Record the hit location
 	FHitResult Hit = FHitResult(ForceInit);
 
 	// Get the hit result under the cursor
 	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursor(ECC_Visibility, false, Hit);
 
-	if (Hit.bBlockingHit && bIsMyTurn)
+	if (Hit.bBlockingHit)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("clicked"));
-
-		// Checks if tile has unit
-		if (ATile* CurrentTile = Cast<ATile>(Hit.GetActor()))
+		if (ATile* Tile = Cast<ATile>(Hit.GetActor()))
 		{
-			// Checks if current player owns the clicked tile
-			if (CurrentTile->GetOwner() == this)
+			if (Tile->GetTileOwner() == -1 && !Tile->bIsObstacle)
 			{
+				FVector2D SpawnLocation = Tile->GetGridPosition();
+
 				
 			}
 		}
+		
+
 
 	}
 }

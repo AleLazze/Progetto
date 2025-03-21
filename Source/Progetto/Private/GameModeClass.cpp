@@ -7,6 +7,7 @@
 #include "Brawler.h"
 #include "Sniper.h"
 #include "Kismet/GameplayStatics.h"
+#include "EngineUtils.h"
 
 
 AGameModeClass::AGameModeClass()
@@ -22,14 +23,15 @@ void AGameModeClass::BeginPlay()
 
 	TurnCounter = 0;
 
-	/* AHumanPlayer* HumanPlayer = GetWorld()->GetFirstPlayerController()->GetPawn<AHumanPlayer>();
+	AHumanPlayer* HumanPlayer = GetWorld()->GetFirstPlayerController()->GetPawn<AHumanPlayer>();
 
+	// Debug
 	if (!IsValid(HumanPlayer))
 	{
-		UE_LOG(LogTemp, Error, TEXT("No HumanPlayer found!"));
+		UE_LOG(LogTemp, Error, TEXT("No player pawn of type '%s' was found."), *AHumanPlayer::StaticClass()->GetName());
 		return;
 	}
-	*/
+	
 
 	// Creates game field
 	if (GameFieldClass != nullptr)
@@ -57,12 +59,25 @@ void AGameModeClass::BeginPlay()
 
 	// Add HumanPlayer to the list of players
 	Players.Add(HumanPlayer);
+	
+	// Create the camera
+	float TotalFieldSize = FieldSize * GameField->TileSize + (FieldSize - 1) * (GameField->TileSize * GameField->TilePadding);
+	float CameraPosition = TotalFieldSize * 0.5;
+	float CameraHeight = 2500;
+	FVector CameraPos(CameraPosition, CameraPosition, CameraHeight);
+	HumanPlayer->SetActorLocationAndRotation(CameraPos, FRotationMatrix::MakeFromX(FVector(0, 0, -1)).Rotator());
+
+	// Debug
+	UE_LOG(LogTemp, Warning, TEXT("OnConstruction: Camera Location: X=%f, Y=%f, Z=%f"),
+		HumanPlayer->Camera->GetComponentLocation().X,
+		HumanPlayer->Camera->GetComponentLocation().Y,
+		HumanPlayer->Camera->GetComponentLocation().Z);
 
 	
 	// Add AI players
-	// auto* AIPlayer = GetWorld()->SpawnActor<AAIPlayer>(FVector(), FRotator());
+	AAIPlayer* AIPlayer = GetWorld()->SpawnActor<AAIPlayer>(FVector(), FRotator());
 
-	// Players.Add(AIPlayer);
+	Players.Add(AIPlayer);
 
 
 
@@ -81,16 +96,7 @@ void AGameModeClass::PickPlayerPlaceUnits()
 	// Pick random player
 	FirstPlayer = FMath::RandRange(0, Players.Num() - 1);
 	SecondPlayer = GetNextPlayer(FirstPlayer);
-
-	// Place units
-	GameField->PlaceUnitOnTile(ABrawler::StaticClass(), FVector2D(0, 0), FirstPlayer);
-	UE_LOG(LogTemp, Warning, TEXT("Placed Brawler on tile 0,0"));
-	GameField->PlaceUnitOnTile(ABrawler::StaticClass(), FVector2D(24, 24), SecondPlayer);
-	UE_LOG(LogTemp, Warning, TEXT("Placed Brawler on tile 24,24"));
-	GameField->PlaceUnitOnTile(ASniper::StaticClass(), FVector2D(0, 24), FirstPlayer);
-	UE_LOG(LogTemp, Warning, TEXT("Placed Sniper on tile 0,24"));
-	GameField->PlaceUnitOnTile(ASniper::StaticClass(), FVector2D(24, 0), SecondPlayer);
-	UE_LOG(LogTemp, Warning, TEXT("Placed Sniper on tile 24,0"));
+	
 
 }
 

@@ -68,8 +68,8 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ATile> TileClass;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
-	UCameraComponent* GameCamera;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
+	//UCameraComponent* GameCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obstacles")
 	UMaterialInterface* ObstacleMaterial;

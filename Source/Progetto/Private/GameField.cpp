@@ -20,11 +20,11 @@ AGameField::AGameField()
 
 	// Obstacle percentage
 	ObstaclePercentage = 0.1;
-
+	/*
 	// Create camera component
 	GameCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("GameCamera"));
 	GameCamera->SetupAttachment(RootComponent);
-
+	*/
 }
 
 void AGameField::OnConstruction(const FTransform& Transform)
@@ -34,6 +34,7 @@ void AGameField::OnConstruction(const FTransform& Transform)
 	// Next cell multiplier
 	NextTileMultiplier = (TileSize + TileSize * TilePadding) / TileSize;
 
+	/*
 	// Set camera location
 	if (GameCamera)
 	{
@@ -44,13 +45,9 @@ void AGameField::OnConstruction(const FTransform& Transform)
 
 		GameCamera->SetWorldLocation(FVector(CameraLocation, CameraLocation, 2500.f));
 		GameCamera->SetWorldRotation(FRotator(-90.f, 0.f, 0.f));
+		
 	}
-
-	// Debug
-	UE_LOG(LogTemp, Warning, TEXT("OnConstruction: Camera Location: X=%f, Y=%f, Z=%f"),
-		GameCamera->GetComponentLocation().X,
-		GameCamera->GetComponentLocation().Y,
-		GameCamera->GetComponentLocation().Z);
+	*/
 }
 
 
@@ -59,12 +56,14 @@ void AGameField::BeginPlay()
 {
 	Super::BeginPlay();
 
+	/*
 	// Obtain player controller and set camera view target
 	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController)
 	{
 		PlayerController->SetViewTarget(this);
 	}
+	*/
 	
 	GenerateField();
 
@@ -152,7 +151,7 @@ void AGameField::PlaceUnitOnTile(TSubclassOf<AGameUnit> UnitClass, FVector2D Pos
 	ATile* TargetTile = TileMap[Position];
 
 	// Check if tile is occupied
-	if (TargetTile->GetTileOwner() != -1)
+	if (TargetTile->GetTileOwner() != -1 || TargetTile->bIsObstacle)
 	{
 		// Debug
 		UE_LOG(LogTemp, Warning, TEXT("Tile is occupied"));
@@ -169,5 +168,6 @@ void AGameField::PlaceUnitOnTile(TSubclassOf<AGameUnit> UnitClass, FVector2D Pos
 	{
 		SpawnedUnit->SetUnitOwner(Player);
 		TargetTile->SetTileOwner(Player);
+
 	}	
 }

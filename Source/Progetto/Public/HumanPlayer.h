@@ -7,6 +7,7 @@
 #include "GameInstanceClass.h"
 #include "PlayerInterface.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "HumanPlayer.generated.h"
 
 UCLASS()
@@ -18,6 +19,7 @@ public:
 	// Sets default values for this pawn's properties
 	AHumanPlayer();
 
+	// Camera attached to the player
 	UCameraComponent* Camera;
 
 	UGameInstanceClass* GameInstance;
@@ -28,6 +30,15 @@ protected:
 
 	// Track turn
 	bool bIsMyTurn = false;
+
+	// Track if player is placing units
+	bool bIsPlacingUnits = false;
+	int32 UnitsPlaced = 0;
+
+	// Unit to place
+	TSubclassOf<class AGameUnit> SelectedUnitToPlace;
+	// Game field
+	class AGameField* GameField;
 
 public:	
 	void OnTurn() override;
