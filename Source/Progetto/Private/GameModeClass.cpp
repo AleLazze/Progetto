@@ -4,8 +4,6 @@
 #include "GameModeClass.h"
 #include "HumanPlayer.h"
 #include "AIPlayer.h"
-#include "Brawler.h"
-#include "Sniper.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
 
@@ -19,7 +17,7 @@ void AGameModeClass::BeginPlay()
 {
 	Super::BeginPlay();
 
-	isGameOver = false;
+	bIsGameOver = false;
 
 	TurnCounter = 0;
 
@@ -40,22 +38,6 @@ void AGameModeClass::BeginPlay()
 		GameField = GetWorld()->SpawnActor<AGameField>(GameFieldClass, Origin, FRotator::ZeroRotator);
 		GameField->FieldSize = FieldSize;
 	}
-	else
-	{
-		// Debug
-		UE_LOG(LogTemp, Error, TEXT("No GameFieldClass found!"));
-	}
-
-	// Debug
-	if (!GameField)
-	{
-		UE_LOG(LogTemp, Error, TEXT("No GameField found in the scene!"));
-		return;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Log, TEXT("GameField found successfully!"));
-	}
 
 	// Add HumanPlayer to the list of players
 	Players.Add(HumanPlayer);
@@ -65,52 +47,59 @@ void AGameModeClass::BeginPlay()
 	float CameraPosition = TotalFieldSize * 0.5;
 	float CameraHeight = 2500;
 	FVector CameraPos(CameraPosition, CameraPosition, CameraHeight);
-	HumanPlayer->SetActorLocationAndRotation(CameraPos, FRotationMatrix::MakeFromX(FVector(0, 0, -1)).Rotator());
-
-	// Debug
-	UE_LOG(LogTemp, Warning, TEXT("OnConstruction: Camera Location: X=%f, Y=%f, Z=%f"),
-		HumanPlayer->Camera->GetComponentLocation().X,
-		HumanPlayer->Camera->GetComponentLocation().Y,
-		HumanPlayer->Camera->GetComponentLocation().Z);
-
+	HumanPlayer->SetActorLocationAndRotation(CameraPos, FRotator(-90.f, 0.f, -90.f));
 	
 	// Add AI players
 	AAIPlayer* AIPlayer = GetWorld()->SpawnActor<AAIPlayer>(FVector(), FRotator());
 
 	Players.Add(AIPlayer);
 
+	// Choose first player
+	ChoosePlayer();
 
-
-	this->PickPlayerPlaceUnits();
+	// Starts game with placement phase
+	StartPlacementPhase();
+	
 }
 
-void AGameModeClass::PickPlayerPlaceUnits()
+void AGameModeClass::ChoosePlayer()
 {
-	if (!GameField)
+	CurrentPlayer = FMath::RandRange(0, Players.Num() - 1);
+
+	Players[CurrentPlayer]->OnTurn();
+}
+
+void AGameModeClass::StartPlacementPhase()
+{
+	bIsPlacementPhase = true;
+	bIsGamePhase = false;
+
+}
+
+void AGameModeClass::StartGamePhase()
+{
+	bIsPlacementPhase = false;
+	bIsGamePhase = true;
+
+}
+
+void AGameModeClass::PlaceUnit(int32 Player, FVector Location, TSubclassOf<AGameUnit> UnitClass)
+{
+	if (Player != CurrentPlayer)
 	{
 		// Debug
-		UE_LOG(LogTemp, Warning, TEXT("No game field found"));
+		UE_LOG(LogTemp, Error, TEXT("It's not the turn of player %d"), Player);
 		return;
 	}
 
-	// Pick random player
-	FirstPlayer = FMath::RandRange(0, Players.Num() - 1);
-	SecondPlayer = GetNextPlayer(FirstPlayer);
-	
+	GetWorld()->SpawnActor<AGameUnit>(UnitClass, Location, FRotator::ZeroRotator);
+
+	NextPlayer();
 
 }
 
-int32 AGameModeClass::GetNextPlayer(int32 Player)
+void AGameModeClass::NextPlayer()
 {
-	// Get the next player
-	Player = 1 - Player;
-	return Player;
-}
-
-void AGameModeClass::EndTurn()
-{
-	// End the turn
-	CurrentPlayer = GetNextPlayer(CurrentPlayer);
-	TurnCounter += 1;
+	CurrentPlayer = 1 - CurrentPlayer;
 	Players[CurrentPlayer]->OnTurn();
 }

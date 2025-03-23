@@ -18,4 +18,5 @@ class PROGETTO_API ABrawler : public AGameUnit
 
 public:
 	ABrawler();
+
 };

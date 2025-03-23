@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameField.h"
 #include "PlayerInterface.h"
-#include "GameUnit.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameModeClass.generated.h"
 
@@ -19,17 +18,28 @@ class PROGETTO_API AGameModeClass : public AGameModeBase
 
 public:
 	// Is the game over?
-	bool isGameOver;
+	bool bIsGameOver;
 	//Array of player interfaces
 	TArray<class IPlayerInterface*> Players;
-	// First player
-	int32 FirstPlayer;
-	// Second player
-	int32 SecondPlayer;
-	// Current player
-	int32 CurrentPlayer;
 	// Turn counter
 	int32 TurnCounter;
+	// Current player
+	int32 CurrentPlayer;
+
+	// Parameters to keep track of game phases
+	bool bIsPlacementPhase = false;
+	bool bIsGamePhase = false;
+
+	int32 UnitsToPlace; // Number of units to place per player
+
+	void ChoosePlayer();
+
+	void StartPlacementPhase();
+	void StartGamePhase();
+
+	// Function to place a unit on the field
+	void PlaceUnit(int32 Player, FVector Location, TSubclassOf<class AGameUnit> UnitClass);
+	
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AGameField> GameFieldClass;
@@ -47,13 +57,7 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Called at the start of the game
-	void PickPlayerPlaceUnits();
-
-	// Get next player
-	int32 GetNextPlayer(int32 Player);
-
-	// Called at the end of the turn
-	void EndTurn();
+	void NextPlayer();
+	
 	
 };

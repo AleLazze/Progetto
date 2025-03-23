@@ -18,4 +18,5 @@ class PROGETTO_API ASniper : public AGameUnit
 
 public:
 	ASniper();
+
 };

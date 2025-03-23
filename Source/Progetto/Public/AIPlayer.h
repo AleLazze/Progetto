@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "PlayerInterface.h"
 #include "GameInstanceClass.h"
+#include "GameModeClass.h"
+#include "Kismet/GameplayStatics.h"
 #include "AIPlayer.generated.h"
 
 UCLASS()
@@ -22,6 +24,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	bool bIsMyTurn = false;
 
 public:
 	void OnTurn() override;

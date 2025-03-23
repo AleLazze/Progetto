@@ -39,9 +39,6 @@ public:
 	// Generate obstacles
 	void GenerateObstacles(int32 NumObstacles);
 
-	// Place unit on tile
-	void PlaceUnitOnTile(TSubclassOf<AGameUnit> UnitClass, FVector2D Position, int32 Player);
-
 
 	// Size of field
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -68,11 +65,11 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<ATile> TileClass;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
-	//UCameraComponent* GameCamera;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obstacles")
+	UMaterialInterface* ObstacleMaterialTree;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obstacles")
-	UMaterialInterface* ObstacleMaterial;
+	UMaterialInterface* ObstacleMaterialRock;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obstacles")
 	float ObstaclePercentage;

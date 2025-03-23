@@ -11,10 +11,6 @@ AGameUnit::AGameUnit()
 
 	// Creates mesh component
 	UnitMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("UnitMesh"));
-	RootComponent = UnitMesh;
-
-	// Debug
-	UE_LOG(LogTemp, Warning, TEXT("AGameUnit created with RootComponent set"));
 
 }
 

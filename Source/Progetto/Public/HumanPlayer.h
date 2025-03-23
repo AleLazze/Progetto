@@ -31,10 +31,6 @@ protected:
 	// Track turn
 	bool bIsMyTurn = false;
 
-	// Track if player is placing units
-	bool bIsPlacingUnits = false;
-	int32 UnitsPlaced = 0;
-
 	// Unit to place
 	TSubclassOf<class AGameUnit> SelectedUnitToPlace;
 	// Game field

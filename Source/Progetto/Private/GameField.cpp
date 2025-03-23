@@ -20,11 +20,7 @@ AGameField::AGameField()
 
 	// Obstacle percentage
 	ObstaclePercentage = 0.1;
-	/*
-	// Create camera component
-	GameCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("GameCamera"));
-	GameCamera->SetupAttachment(RootComponent);
-	*/
+	
 }
 
 void AGameField::OnConstruction(const FTransform& Transform)
@@ -34,20 +30,7 @@ void AGameField::OnConstruction(const FTransform& Transform)
 	// Next cell multiplier
 	NextTileMultiplier = (TileSize + TileSize * TilePadding) / TileSize;
 
-	/*
-	// Set camera location
-	if (GameCamera)
-	{
-		// Get total field size
-		float TotalFieldSize = FieldSize * TileSize + (FieldSize - 1) * (TileSize * TilePadding);
-		float CameraLocation = TotalFieldSize * 0.5f;
-		
-
-		GameCamera->SetWorldLocation(FVector(CameraLocation, CameraLocation, 2500.f));
-		GameCamera->SetWorldRotation(FRotator(-90.f, 0.f, 0.f));
-		
-	}
-	*/
+	
 }
 
 
@@ -56,14 +39,7 @@ void AGameField::BeginPlay()
 {
 	Super::BeginPlay();
 
-	/*
-	// Obtain player controller and set camera view target
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (PlayerController)
-	{
-		PlayerController->SetViewTarget(this);
-	}
-	*/
+	
 	
 	GenerateField();
 
@@ -132,42 +108,18 @@ void AGameField::GenerateObstacles(int32 NumObstacles)
 		int32 RandomIndex = FMath::RandRange(0, AvailableTiles.Num() - 1);
 		ATile* RandomTile = AvailableTiles[RandomIndex];
 		// Set tile as obstacle
-		RandomTile->SetAsObstacle(ObstacleMaterial);
+		// Choose random material
+		int32 RandomMaterialIndex = FMath::RandRange(0, 1);
+		if (RandomMaterialIndex == 0)
+		{
+			RandomTile->SetAsObstacle(ObstacleMaterialRock);
+		}
+		else
+		{
+			RandomTile->SetAsObstacle(ObstacleMaterialTree);
+		}
 		// Remove tile from available tiles
 		AvailableTiles.RemoveAt(RandomIndex);
 	}
 }
 
-void AGameField::PlaceUnitOnTile(TSubclassOf<AGameUnit> UnitClass, FVector2D Position, int32 Player)
-{
-	if (TileMap.Contains(Position) == false)
-	{
-		// Debug
-		UE_LOG(LogTemp, Warning, TEXT("Tile not found"));
-		return;
-	}
-
-
-	ATile* TargetTile = TileMap[Position];
-
-	// Check if tile is occupied
-	if (TargetTile->GetTileOwner() != -1 || TargetTile->bIsObstacle)
-	{
-		// Debug
-		UE_LOG(LogTemp, Warning, TEXT("Tile is occupied"));
-		return;
-	}
-
-	// Set spawn location
-	FVector SpawnLocation = TargetTile->GetActorLocation();
-	SpawnLocation.Z = 100.f;
-
-	AGameUnit* SpawnedUnit = GetWorld()->SpawnActor<AGameUnit>(UnitClass, SpawnLocation, FRotator::ZeroRotator);
-
-	if (SpawnedUnit)
-	{
-		SpawnedUnit->SetUnitOwner(Player);
-		TargetTile->SetTileOwner(Player);
-
-	}	
-}

@@ -5,6 +5,8 @@
 #include "Tile.h"
 #include "GameField.h"
 #include "GameModeClass.h"
+#include "Brawler.h"
+#include "Sniper.h"
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -25,7 +27,7 @@ AHumanPlayer::AHumanPlayer()
 	// Get game instance
 	GameInstance = Cast<UGameInstanceClass>(UGameplayStatics::GetGameInstance(GetWorld()));
 
-	PlayerNumber = 1;
+	PlayerNumber = -1;
 
 }
 
@@ -40,6 +42,7 @@ void AHumanPlayer::BeginPlay()
 void AHumanPlayer::OnTurn()
 {
 	bIsMyTurn = true;
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Human turn!"));
 	GameInstance->SetCurrentTurnMessage(TEXT("Human turn!"));
 }
 
@@ -62,31 +65,48 @@ void AHumanPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void AHumanPlayer::OnClick()
 {
-	if (!bIsMyTurn)
-	{
-		return;
-	}
-
-	// Record the hit location
+	// Record a hit result
 	FHitResult Hit = FHitResult(ForceInit);
 
-	// Get the hit result under the cursor
-	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+	GetWorld()->GetFirstPlayerController()->GetHitResultUnderCursor(ECollisionChannel::ECC_Pawn, false, Hit);
+	AGameModeClass* GameMode = Cast<AGameModeClass>(GetWorld()->GetAuthGameMode());
 
-	if (Hit.bBlockingHit)
+	// Check if it's the placement phase
+	if (GameMode->bIsPlacementPhase)
 	{
-		if (ATile* Tile = Cast<ATile>(Hit.GetActor()))
+		// Check if it's the player's turn and the hit is valid
+		if (bIsMyTurn && Hit.bBlockingHit)
 		{
-			if (Tile->GetTileOwner() == -1 && !Tile->bIsObstacle)
+			if (ATile* CurrentTile = Cast<ATile>(Hit.GetActor()))
 			{
-				FVector2D SpawnLocation = Tile->GetGridPosition();
+				// Check if the tile is empty
+				if (CurrentTile->TileOwner == -1)
+				{
+					GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Tile clicked!"));	// Debug
+					CurrentTile->SetTileOwner(PlayerNumber);
+					FVector SpawnLocation = CurrentTile->GetActorLocation();
 
-				
+					// Check which unit to place
+					if (GameMode->UnitsToPlace == 2)
+					{
+						GameMode->PlaceUnit(PlayerNumber, SpawnLocation, ABrawler::StaticClass());
+						GameMode->UnitsToPlace--;
+						bIsMyTurn = false;
+					}
+					else if (GameMode->UnitsToPlace == 1)
+					{
+						GameMode->PlaceUnit(PlayerNumber, SpawnLocation, ASniper::StaticClass());
+						GameMode->UnitsToPlace--;
+						bIsMyTurn = false;
+					}
+					else
+					{
+						GameMode->bIsPlacementPhase = false;
+						GameMode->bIsGamePhase = true;
+					}
+				}
 			}
 		}
-		
-
-
 	}
 }
 
